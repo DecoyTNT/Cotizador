@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from 'prop-types';
 import styled from "@emotion/styled";
 import { obtenerDiferenciaYear, calcularMarca, calcularPlan } from '../helper';
 
@@ -103,7 +104,7 @@ const Formulario = ({ setResumen, setCargando }) => {
             setCargando(false);
 
             setResumen({
-                cotizacion: seguro,
+                cotizacion: Number(seguro),
                 datos
             });
         }, 2000);
@@ -170,5 +171,10 @@ const Formulario = ({ setResumen, setCargando }) => {
         </form>
     );
 };
+
+Formulario.propTypes = {
+    setResumen: PropTypes.func.isRequired,
+    setCargando: PropTypes.func.isRequired
+}
 
 export default Formulario;

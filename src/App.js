@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Fragment } from "react";
 import styled from "@emotion/styled";
 import Header from "./components/Header";
 import Formulario from "./components/Formulario";
@@ -47,13 +47,16 @@ function App() {
 
                 {cargando ? <Spinner /> : null}
 
-                <Resumen
-                    datos={datos}
-                />
+
                 {!cargando
-                    ? <Resultado
-                        cotizacion={cotizacion}
-                    />
+                    ? <Fragment>
+                        <Resumen
+                            datos={datos}
+                        />
+                        <Resultado
+                            cotizacion={cotizacion}
+                        />
+                    </Fragment>
                     : null
                 }
 
