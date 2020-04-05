@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import styled from '@emotion/styled';
+import React, { useState } from "react";
+import styled from "@emotion/styled";
+import { obtenerDiferenciaYear, calcularMarca, calcularPlan } from '../helper';
 
 const Campo = styled.div`
     display: flex;
@@ -15,7 +16,7 @@ const Select = styled.select`
     display: block;
     width: 100%;
     padding: 1rem;
-    border: 1px solid #E1E1E1;
+    border: 1px solid #e1e1e1;
     -webkit-appearance: none;
 `;
 
@@ -24,7 +25,7 @@ const InputRadio = styled.input`
 `;
 
 const Boton = styled.button`
-    background-color: #00838F; 
+    background-color: #00838f;
     font-size: 16px;
     width: 100%;
     padding: 1rem;
@@ -32,38 +33,85 @@ const Boton = styled.button`
     text-transform: uppercase;
     font-weight: bold;
     border: none;
-    transition: background-color .3s ease;
+    transition: background-color 0.3s ease;
     margin-top: 3rem;
 
     &:hover {
-        background-color: #26C6DA;
+        background-color: #26c6da;
         cursor: pointer;
     }
 `;
 
+const Error = styled.div`
+    background-color: red;
+    color: white;
+    padding: 1rem;
+    width: 100%;
+    text-align: center;
+`;
 
-
-const Formulario = () => {
-
+const Formulario = ({ setResumen, setCargando }) => {
     const [datos, setDatos] = useState({
-        marca: '',
-        year: '',
-        plan: ''
+        marca: "",
+        year: "",
+        plan: "",
     });
+
+    const [error, setError] = useState(false);
 
     const { marca, year, plan } = datos;
 
     const obtenerInformacion = e => {
-        e.preventDefault();
-
         setDatos({
             ...datos,
-            [e.target.name]: e.target.value
-        })
-    }
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const cotizarSeguro = e => {
+        e.preventDefault();
+
+        if (marca.trim() === "" || year.trim() === "" || plan.trim() === "") {
+            return setError(true);
+        }
+        setError(false);
+
+        // costo de un seguro
+        let seguro = 2000;
+
+        // Obtener la diferencia de años
+        const diferencia = obtenerDiferenciaYear(year);
+
+        // Por cada año hay que restar el 3%
+        seguro -= (seguro * (diferencia * 0.03));
+
+
+        // America 15%
+        // Asiatico 5%
+        // Europeo 30%
+        seguro = seguro * calcularMarca(marca);
+
+
+        // Básico 20%
+        // Completo 50%
+        seguro = parseFloat(seguro * calcularPlan(plan)).toFixed(2);
+
+        setCargando(true);
+
+        // Total
+        setTimeout(() => {
+            setCargando(false);
+
+            setResumen({
+                cotizacion: seguro,
+                datos
+            });
+        }, 2000);
+    };
 
     return (
-        <form>
+        <form onSubmit={cotizarSeguro}>
+            {error ? <Error>Todos los campos son obligatorios</Error> : null}
             <Campo>
                 <Label>Marca</Label>
                 <Select
@@ -73,7 +121,7 @@ const Formulario = () => {
                 >
                     <option value="">-- Seleccione --</option>
                     <option value="americano">Americano</option>
-                    <option value="europe">Europe</option>
+                    <option value="europeo">Europeo</option>
                     <option value="asiatico">Asiatico</option>
                 </Select>
             </Campo>
@@ -106,20 +154,21 @@ const Formulario = () => {
                     value="basico"
                     checked={plan === "basico"}
                     onChange={obtenerInformacion}
-                />Básico
-
+                />
+                Básico
                 <InputRadio
                     type="radio"
                     name="plan"
                     value="completo"
                     checked={plan === "completo"}
                     onChange={obtenerInformacion}
-                />Completo
+                />
+                Completo
             </Campo>
 
-            <Boton type="button">Cotizar</Boton>
+            <Boton type="submit">Cotizar</Boton>
         </form>
     );
-}
+};
 
 export default Formulario;
